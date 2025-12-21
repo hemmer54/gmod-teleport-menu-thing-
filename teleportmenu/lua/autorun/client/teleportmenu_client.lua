@@ -345,10 +345,30 @@ local function serverUtilityMenu(panel)
 	panel:Help("Server CVars are prefixed with \"sv_teleportmenu_\"!")
 
 	panel:Help("\nPermissions required for commands:")
-	panel:NumSlider("Go to (teleportmenu_goto)", "sv_teleportmenu_goto_rank", 0, 2, 0):SetEnabled(isHost)
-	panel:NumSlider("Bring (teleportmenu_bring)", "sv_teleportmenu_bring_rank", 0, 2, 0):SetEnabled(isHost)
-	panel:NumSlider("Teleport (teleportmenu_teleport)", "sv_teleportmenu_teleport_rank", 0, 2, 0):SetEnabled(isHost)
-	panel:ControlHelp("0 = no restriction   1 = admin only   2 = superadmin only")
+	local function add_rank_combobox(name, cvar_name)
+		local label = vgui.Create("DLabel")
+		label:SetText(name)
+		label:SetDark(true)
+
+		local combobox = vgui.Create("DComboBox")
+		combobox:SetSortItems(false)
+		combobox:SetEnabled(isHost)
+		combobox:Dock(FILL)
+		combobox:AddChoice("Everyone", "0")
+		combobox:AddChoice("Admins only", "1")
+		combobox:AddChoice("Superadmins only", "2")
+		local cvar = GetConVar(cvar_name)
+		combobox:ChooseOptionID(math.Clamp(cvar:GetInt()+1, 1, 3))
+		function combobox:OnSelect(i, v, d)
+			RunConsoleCommand(cvar_name, d)
+		end
+
+		panel:AddItem(label, combobox)
+
+	end
+	add_rank_combobox("Go to", "sv_teleportmenu_goto_rank")
+	add_rank_combobox("Bring", "sv_teleportmenu_bring_rank")
+	add_rank_combobox("Teleport", "sv_teleportmenu_teleport_rank")
 
 	panel:NumSlider("Cooldown", "sv_teleportmenu_cooldown", 0, 30, 2):SetEnabled(isHost)
 	panel:ControlHelp(sv_cvar.cooldown:GetHelpText())
