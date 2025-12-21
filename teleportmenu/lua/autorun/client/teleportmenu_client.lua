@@ -248,17 +248,29 @@ if cl_cvar.cmenuicon:GetInt() > 0 and game.MaxPlayers() > 1 then
 			end
 		end
 
+		---@param plr Player
+		---@param callback2 function
+		local function addPlayer(plr, callback2)
+			local name, uid = plr:Name(), plr:UserID()
+			local opt = menu:AddOption(name, callback2)
+			local avatar = vgui.Create("AvatarImage", opt)
+			avatar:SetSize(16, 16)
+			avatar:SetPos(3, 3)
+			avatar:SetPlayer(plr, 32)
+			avatar:SetMouseInputEnabled(false)
+			opt:SetTooltip(("[%s|%s|%s]"):format(name, uid, plr:SteamID()))
+		end
+
 		if #recent > 0 then
 			for i = 1, #recent do
 				local plr = Player(recent[i])
 				if IsValid(plr) then
-					local name, uid = plr:Name(), plr:UserID()
-					local opt = menu:AddOption(name, function()
+					local uid = plr:UserID()
+					addPlayer(plr, function()
 						table.remove(recent, i)
 						table.insert(recent, 1, uid)
 						callback(uid)
 					end)
-					opt:SetTooltip(("[%s|%s|%s]"):format(name, uid, plr:SteamID()))
 				end
 			end
 
@@ -266,13 +278,12 @@ if cl_cvar.cmenuicon:GetInt() > 0 and game.MaxPlayers() > 1 then
 		end
 
 		for _, plr in ipairs(plrs) do
-			local name, uid = plr:Name(), plr:UserID()
+			local uid = plr:UserID()
 			if plr ~= localplr and not findInList(recent, uid) then
-				local opt = menu:AddOption(name, function()
+				addPlayer(plr, function()
 					table.insert(recent, 1, uid)
 					callback(uid)
 				end)
-				opt:SetTooltip(("[%s|%s|%s]"):format(name, uid, plr:SteamID()))
 			end
 		end
 	end
