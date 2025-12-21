@@ -8,7 +8,9 @@ return {
 			allow_in_non_sandbox = CreateConVar("sv_teleportmenu_allow_in_non_sandbox", "0", {FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY}, "Allow usage of Teleport Menu commands in non-sandbox derived gamemodes.", 0, 1),
 			notify_targets = CreateConVar("sv_teleportmenu_notify_targets", "1", {FCVAR_ARCHIVE}, "Notify teleport targets when they are teleported or when someone teleports to their location.", 0, 1),
 			chatcmdsenabled = CreateConVar("sv_teleportmenu_chatcmdsenabled", "1", {FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY}, "Enable chat commands?", 0, 1),
-			chatcmdsprefix = CreateConVar("sv_teleportmenu_chatcmdsprefix", "/", {FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY}, "Prefix for chat commands. Default: '/'")
+			chatcmdsprefix = CreateConVar("sv_teleportmenu_chatcmdsprefix", "/", {FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY}, "Prefix for chat commands. Default: '/'"),
+			cooldown = CreateConVar("sv_teleportmenu_cooldown", "0.75", {FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY}, "Cooldown for successful teleports in seconds. 0 to disable."),
+			cooldown_ignore_admins = CreateConVar("sv_teleportmenu_cooldown_ignore_admins", "1", {FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Should admins ignore the teleport cooldown?")
 		}
 	end,
 	---@param plr Player

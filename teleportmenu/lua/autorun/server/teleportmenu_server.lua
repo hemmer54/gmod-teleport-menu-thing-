@@ -6,6 +6,10 @@ AddCSLuaFile("teleportmenu_shared.lua")
 ---@module "lua/teleportmenu_shared"
 local shared = include "teleportmenu_shared.lua"
 
+-- Table containing last teleport timestamp for each player for debouncing/cooldowns
+---@type table<number, number>
+local debounce = {}
+
 local netS = shared.netS
 local checkRank = shared.checkRank
 util.AddNetworkString(netS)
@@ -135,12 +139,24 @@ local function teleport(caller, plr, target, cmd)
 		end
 
 	end
+
+	return true
 end
 
 net.Receive(netS, function(length, caller)
 	local plrUid = net.ReadUInt(32)
 	local targetUid = net.ReadUInt(32)
 	local cmdI = net.ReadUInt(2)
+
+	local ts_now = os.clock()
+	local ts_last = debounce[caller:UserID()] or 0
+
+	if ts_now < ts_last+sv_cvar.cooldown:GetFloat() then
+		if sv_cvar.cooldown_ignore_admins:GetInt() == 0 or checkRank(caller, 1) ~= true then
+			sendMessage(caller, "cooldown", true)
+			return
+		end
+	end
 
 	local cmd = (
 		cmdI == 1 and "bring" or
@@ -167,5 +183,8 @@ net.Receive(netS, function(length, caller)
 		return log("invalidplr", caller:Name(), cmd)
 	end
 
-	teleport(caller, plr, target, cmd)
+	if teleport(caller, plr, target, cmd) then
+		-- Update debounce timestamp
+		debounce[caller:UserID()] = ts_now
+	end
 end)

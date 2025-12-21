@@ -31,7 +31,8 @@ local strings = {
 	sboxOnly         = "Teleport Menu commands can only be used in Sandbox-derived gamemodes on this server!",
 	adminOnly        = "You must be an admin to use this!",
 	superadminOnly   = "You must be a superadmin to use this!",
-	noPlayers        = "You're the only one here!"
+	noPlayers        = "You're the only one here!",
+	cooldown         = "Cooling down!"
 }
 
 ---@param str string
@@ -348,6 +349,12 @@ local function serverUtilityMenu(panel)
 	panel:NumSlider("Bring (teleportmenu_bring)", "sv_teleportmenu_bring_rank", 0, 2, 0):SetEnabled(isHost)
 	panel:NumSlider("Teleport (teleportmenu_teleport)", "sv_teleportmenu_teleport_rank", 0, 2, 0):SetEnabled(isHost)
 	panel:ControlHelp("0 = no restriction   1 = admin only   2 = superadmin only")
+
+	panel:NumSlider("Cooldown", "sv_teleportmenu_cooldown", 0, 30, 2):SetEnabled(isHost)
+	panel:ControlHelp(sv_cvar.cooldown:GetHelpText())
+
+	panel:CheckBox("Admins ignore cooldowns", "sv_teleportmenu_cooldown_ignore_admins"):SetEnabled(isHost)
+	panel:ControlHelp(sv_cvar.cooldown_ignore_admins:GetHelpText())
 
 	panel:CheckBox("Allow in non-sandbox gamemodes", "sv_teleportmenu_allow_in_non_sandbox"):SetEnabled(isHost)
 	panel:ControlHelp(sv_cvar.allow_in_non_sandbox:GetHelpText())
