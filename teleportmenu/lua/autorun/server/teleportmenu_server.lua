@@ -73,30 +73,30 @@ local checks = {
 ---@param target Player
 ---@param cmd string
 local function teleport(caller, plr, target, cmd)
-	local noclip = (not plr:GetPhysicsObject():IsCollisionEnabled() and not plr:InVehicle()) and true or false
-	local newPos = target:GetPos()
-
-	if not noclip then -- skip if teleporting player is noclipping
-		local targetPos = newPos
+	local function getTargetPos(ignoreBlocker)
+		local targetPos = target:GetPos()
 		local cbMin, cbMax = target:GetCollisionBounds()
 		local width, height = cbMax.x*1.1, cbMax.z -- slightly larger horizontal offset prevents the collision check from hitting the target itself
 		local sizeVector = Vector(width, width, height)
 
-		local noBlocker = false
-
 		for _, checkVectorMod in ipairs(checks) do
-			newPos = targetPos + sizeVector * checkVectorMod
+			local newPos = targetPos + sizeVector * checkVectorMod
 
-			if checkIfValidPos(plr, newPos) then
-				noBlocker = true
-				break
+			if ignoreBlocker or checkIfValidPos(plr, newPos) then
+				return newPos
 			end
 		end
 
-		if not noBlocker then
-			sendMessage(caller, cmd.."_noSpace", true, plr:UserID(), target:UserID())
-			return
-		end
+		-- couldn't find valid position
+		return false
+	end
+
+	local noclip = (not plr:GetPhysicsObject():IsCollisionEnabled() and not plr:InVehicle()) and true or false
+	local newPos = getTargetPos() or (noclip and getTargetPos(true))
+
+	if not newPos then
+		sendMessage(caller, cmd.."_noSpace", true, plr:UserID(), target:UserID())
+		return
 	end
 
 	plr:ExitVehicle()
